@@ -14,7 +14,7 @@ export default async function handler(req, res) {
       page = 1,
       firstChar,
     } = req.query;
-
+    console.log(req.query);
     const filtering = {
       ...(denomSocial && {
         denomSocial: { $regex: denomSocial, $options: "i" },
