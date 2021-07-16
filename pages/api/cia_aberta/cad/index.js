@@ -1,5 +1,5 @@
-import { connectToDatabase } from "../../../utils/mongodb";
-import { hasArgs } from "../../../utils/utils";
+import { connectToDatabase } from "../../../../utils/mongodb";
+import { hasArgs } from "../../../../utils/utils";
 
 export default async function handler(req, res) {
   if (hasArgs(req.query)) {
@@ -10,11 +10,16 @@ export default async function handler(req, res) {
       dtReg,
       dtCancel,
       sit,
-      limit = 30,
-      page = 1,
       firstChar,
     } = req.query;
-    console.log(req.query);
+
+    const projection = {
+      cdCvm: 1,
+      denomSocial: 1,
+      cnpjCia: 1,
+      uf: 1,
+      sit: 1,
+    };
     const filtering = {
       ...(denomSocial && {
         denomSocial: { $regex: denomSocial, $options: "i" },
@@ -32,8 +37,7 @@ export default async function handler(req, res) {
     const result = await db
       .collection("cia_aberta_cad")
       .find(filtering)
-      .skip(limit * (page - 1))
-      .limit(parseInt(limit))
+      .project(projection)
       .toArray();
 
     res.status(200).json(result);

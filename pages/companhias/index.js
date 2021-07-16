@@ -5,27 +5,26 @@ import {
   Section,
   Icon,
   Table,
-  Modal,
 } from "react-bulma-components";
 import Dropdown from "../../components/Dropdown";
 import NavBar from "../../components/NavBar";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  faCalendar,
-  faStepForward,
-  faStepBackward,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { usePromiseTracker, trackPromise } from "react-promise-tracker";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 export default function CiasAbertas() {
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetchResults({ ...formState, ...page });
+    fetchResults(formState);
   };
+
   const { promiseInProgress } = usePromiseTracker();
+  const router = useRouter();
+
   const fetchResults = (params) =>
     trackPromise(
       axios
@@ -53,23 +52,8 @@ export default function CiasAbertas() {
   });
 
   const [firstChar, setFirstChar] = useState("");
-  const [page, setPage] = useState({ page: 1, limit: 50 });
-  const [modelDetail, setModalDetail] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [ufs, setUfs] = useState(null);
   const [results, setResults] = useState(null);
-
-  const nextPage = () => {
-    console.log(page)
-    setPage((state) => ({ ...state, page: state.page++ }));
-  };
-
-  const prevPage = () => {
-    setPage((state) => ({
-      ...state,
-      page: state.page <= 1 ? 1 : state.page--,
-    }));
-  };
 
   useEffect(() => {
     axios
@@ -82,11 +66,9 @@ export default function CiasAbertas() {
 
   useEffect(() => {
     if (firstChar) {
-      fetchResults({ firstChar: firstChar, ...page });
-    } else {
-      fetchResults({ ...formState, ...page });
+      fetchResults({ firstChar: firstChar });
     }
-  }, [page, firstChar]);
+  }, [firstChar]);
 
   return (
     <div>
@@ -161,8 +143,6 @@ export default function CiasAbertas() {
                       placeholder="DD/MM/AAAA"
                       type="text"
                       value={formState.dtReg}
-                      // renderAs={InputMask}
-                      // mask="99/99/9999"
                       onChange={handleEvent}
                     />
                     <Icon align="right" size="small">
@@ -179,8 +159,6 @@ export default function CiasAbertas() {
                       name="dtCancel"
                       placeholder="DD/MM/AAAA"
                       type="text"
-                      // renderAs={InputMask}
-                      // mask="99/99/9999"
                       value={formState.dtCancel}
                       onChange={handleEvent}
                     />
@@ -195,36 +173,6 @@ export default function CiasAbertas() {
               Pesquisar
             </Button>
           </div>
-          {results && (
-            <Columns multiline={false} vCentered breakpoint="mobile">
-              <Columns.Column />
-              <Columns.Column narrow>
-                <Button
-                  title="Anterior"
-                  size="small"
-                  type="button"
-                  disabled={page.page === 1}
-                  onClick={prevPage}
-                >
-                  <FontAwesomeIcon icon={faStepBackward} />
-                </Button>
-              </Columns.Column>
-              <Columns.Column narrow>
-                <p>{page.page}</p>
-              </Columns.Column>
-              <Columns.Column narrow>
-                <Button
-                  title="Próximo"
-                  size="small"
-                  type="button"
-                  disabled={results.length < page.limit}
-                  onClick={nextPage}
-                >
-                  <FontAwesomeIcon icon={faStepForward} />
-                </Button>
-              </Columns.Column>
-            </Columns>
-          )}
         </form>
         <Table.Container>
           <Table className="mt-3" size="fullwidth" hoverable>
@@ -244,10 +192,7 @@ export default function CiasAbertas() {
                     title={`Clique para ver mais sobre ${row.denomSocial}`}
                     className="is-clickable"
                     key={row._id}
-                    onClick={() => {
-                      setModalDetail(row);
-                      setShowModal(true);
-                    }}
+                    onClick={() => router.push(`/companhias/${row.cdCvm}`)}
                   >
                     <td>{row.cdCvm}</td>
                     <td>{row.denomSocial}</td>
@@ -260,24 +205,6 @@ export default function CiasAbertas() {
           </Table>
         </Table.Container>
       </Section>
-      <Modal
-        showClose={false}
-        closeOnBlur
-        show={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setModalDetail(null);
-        }}
-      >
-        {modelDetail && (
-          <Modal.Card>
-            <Modal.Card.Header showClose={false}>
-              <Modal.Card.Title>{modelDetail.denomSocial}</Modal.Card.Title>
-            </Modal.Card.Header>
-            <Modal.Card.Body>{modelDetail.mun}</Modal.Card.Body>
-          </Modal.Card>
-        )}
-      </Modal>
     </div>
   );
 }

@@ -1,5 +1,13 @@
-import axios from "axios";
+import { connectToDatabase } from "./mongodb";
 
-const api = axios.create();
+export async function getCia(cvm) {
+  const { db } = await connectToDatabase();
 
-export default api;
+  const result = await db
+    .collection("cia_aberta_cad")
+    .find({ cdCvm: parseInt(cvm) })
+    .project({ _id: 0 })
+    .toArray();
+
+  return result || [];
+}

@@ -25,3 +25,9 @@ export const formatMoney = (val, hasSymbol, scale = 1000) => {
 };
 
 export const hasArgs = (query) => Object.keys(query).length > 0;
+
+export const formatPhone = (ddd, num) => {
+  if(!ddd || !num) return null;
+
+  return `(${ddd}) ${num}`
+}
