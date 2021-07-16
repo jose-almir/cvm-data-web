@@ -60,6 +60,7 @@ export default function CiasAbertas() {
   const [results, setResults] = useState(null);
 
   const nextPage = () => {
+    console.log(page)
     setPage((state) => ({ ...state, page: state.page++ }));
   };
 
