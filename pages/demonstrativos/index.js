@@ -177,7 +177,7 @@ export default function Demonstrativos() {
               <Dropdown
                 name="info"
                 label="Informação"
-                options={["Consolidada"]}
+                options={["Consolidada", "Individual"]}
                 onChange={handleEvent}
               />
             </Columns.Column>
